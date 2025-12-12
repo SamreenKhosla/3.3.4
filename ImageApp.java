@@ -1,73 +1,215 @@
-/*
-  ImageApp: 
- */
 import java.awt.Color;
+import javax.swing.JOptionPane; 
 
-public class ImageApp
-{
-  public static void main(String[] args)
-  {
+public class ImageApp {
 
-    // use any file from the lib folder
+  public static void main(String[] args) {
+
     String pictureFile = "lib/beach.jpg";
 
-    // Get an image, get 2d array of pixels, show a color of a pixel, and display the image
     Picture origImg = new Picture(pictureFile);
     Pixel[][] origPixels = origImg.getPixels2D();
     System.out.println(origPixels[0][0].getColor());
     origImg.explore();
 
-    // Image #1 Using the original image and pixels, recolor an image by changing the RGB color of each Pixel
-    Picture recoloredImg = new Picture(pictureFile);
-    Pixel[][] recoloredPixels = recoloredImg.getPixels2D();
+    boolean running = true;
 
-    /* to be implemented */
+    while (running) {
 
-    // Image #2 Using the original image and pixels, create a photographic negative of the image
-    Picture negImg = new Picture(pictureFile);
-    Pixel[][] negPixels = negImg.getPixels2D();
+      String choice = showMenu();
 
-    /* to be implemented */
+      switch (choice) { 
 
-    // Image #3 Using the original image and pixels, create a grayscale version of the image
-    Picture grayscaleImg = new Picture(pictureFile);
-    Pixel[][] grayscalePixels = grayscaleImg.getPixels2D();
+        case "Recolor":
+          doRecolor(pictureFile);
+          break;
 
-    /* to be implemented */
+        case "Negative":
+          doNegative(pictureFile);
+          break;
 
-    // Image #4 Using the original image and pixels, rotate it 180 degrees
-    Picture upsidedownImage = new Picture(pictureFile);
-    Pixel[][] upsideDownPixels = upsidedownImage.getPixels2D();
+        case "Grayscale":
+          doGrayscale(pictureFile);
+          break;
 
-    /* to be implemented */
+        case "Rotate 180":
+          doRotate180(pictureFile);
+          break;
 
-    // Image #5 Using the original image and pixels, rotate image 90
-    Picture rotateImg = new Picture(pictureFile);
-    Pixel[][] rotatePixels = rotateImg.getPixels2D();
+        case "Rotate 90 CW":
+          doRotate90CW(pictureFile);
+          break;
 
-    /* to be implemented */
+        case "Rotate 90 CCW":
+          doRotate90CCW(pictureFile);
+          break;
 
-    // Image #6 Using the original image and pixels, rotate image -90
-    Picture rotateImg2 = new Picture(pictureFile);
-    Pixel[][] rotatePixels2 = rotateImg2.getPixels2D();
+        case "Add Sticker":
+          doAddSticker();
+          break;
 
-    /* to be implemented */
-
-
-    // Final Image: Add a small image to a larger one
-
-    /* to be implemented */
-
-
-
-
-    // for testing  2D algorithms
-    int[][] test1 = { { 1, 2, 3, 4 },
-        { 5, 6, 7, 8 },
-        { 9, 10, 11, 12 },
-        { 13, 14, 15, 16 } };
-    int[][] test2 = new int[4][4];
+        case "Quit":
+          running = false;
+          break;
+      }
+    }
+  }
 
 
+  public static String showMenu() {
+
+    String[] ops = {
+      "Recolor",
+      "Negative",
+      "Grayscale",
+      "Rotate 180",
+      "Rotate 90 CW",
+      "Rotate 90 CCW",
+      "Add Sticker",
+      "Quit"
+    };
+
+    String choice = (String) JOptionPane.showInputDialog(
+      null,
+      "Choose an image operation:",
+      "ImageApp Menu",
+      JOptionPane.PLAIN_MESSAGE,
+      null,
+      ops,
+      ops[0]
+    );
+
+    if (choice == null) return "Quit";
+    return choice;
+  }
+
+
+  public static void doRecolor(String file) {
+    Picture img = new Picture(file);
+    Pixel[][] pixels = img.getPixels2D();
+
+    for (Pixel[] row : pixels)
+      for (Pixel p : row) {
+        int r = p.getRed(), g = p.getGreen(), b = p.getBlue();
+        p.setRed(b);
+        p.setGreen(r);
+        p.setBlue(g);
+      }
+
+    img.setTitle("Recolor (BRG)");
+    img.explore();
+  }
+
+  public static void doNegative(String file) {
+    Picture img = new Picture(file);
+    Pixel[][] pixels = img.getPixels2D();
+
+    for (Pixel[] row : pixels)
+      for (Pixel p : row) {
+        p.setRed(255 - p.getRed());
+        p.setGreen(255 - p.getGreen());
+        p.setBlue(255 - p.getBlue());
+      }
+
+    img.setTitle("Negative");
+    img.explore();
+  }
+
+  public static void doGrayscale(String file) {
+    Picture img = new Picture(file);
+    Pixel[][] pixels = img.getPixels2D();
+
+    for (Pixel[] row : pixels)
+      for (Pixel p : row) {
+        int avg = (p.getRed() + p.getGreen() + p.getBlue()) / 3;
+        p.setRed(avg);
+        p.setGreen(avg);
+        p.setBlue(avg);
+      }
+
+    img.setTitle("Grayscale");
+    img.explore();
+  }
+
+  public static void doRotate180(String file) {
+    Picture orig = new Picture(file);
+    Pixel[][] src = orig.getPixels2D();
+
+    Picture out = new Picture(orig.getHeight(), orig.getWidth());
+    Pixel[][] dest = out.getPixels2D();
+
+    int h = src.length, w = src[0].length;
+
+    for (int r = 0; r < h; r++)
+      for (int c = 0; c < w; c++)
+        dest[h - 1 - r][w - 1 - c].setColor(src[r][c].getColor());
+
+    out.setTitle("Rotate 180");
+    out.explore();
+  }
+
+  public static void doRotate90CW(String file) {
+    Picture orig = new Picture(file);
+    Pixel[][] src = orig.getPixels2D();
+
+    int h = src.length, w = src[0].length;
+    Picture out = new Picture(w, h);
+    Pixel[][] dest = out.getPixels2D();
+
+    for (int r = 0; r < h; r++)
+      for (int c = 0; c < w; c++)
+        dest[c][h - 1 - r].setColor(src[r][c].getColor());
+
+    out.setTitle("Rotate 90 CW");
+    out.explore();
+  }
+
+  public static void doRotate90CCW(String file) {
+    Picture orig = new Picture(file);
+    Pixel[][] src = orig.getPixels2D();
+
+    int h = src.length, w = src[0].length;
+    Picture out = new Picture(w, h);
+    Pixel[][] dest = out.getPixels2D();
+
+    for (int r = 0; r < h; r++)
+      for (int c = 0; c < w; c++)
+        dest[w - 1 - c][r].setColor(src[r][c].getColor());
+
+    out.setTitle("Rotate 90 CCW");
+    out.explore();
+  }
+
+  public static void doAddSticker() {
+
+    Picture big = new Picture("lib/beach.jpg");
+    Picture small = new Picture("lib2/balloon.png");
+
+    Pixel[][] bigPix = big.getPixels2D();
+    Pixel[][] smPix = small.getPixels2D();
+
+    int startR = 50;
+    int startC = 50;
+
+    for (int r = 0; r < smPix.length; r++)
+      for (int c = 0; c < smPix[0].length; c++) {
+
+        Color col = smPix[r][c].getColor();
+
+        if (col.getRed() == 255 && col.getGreen() == 255 && col.getBlue() == 255)
+          continue;
+
+        int br = startR + r;
+        int bc = startC + c;
+
+        if (br < bigPix.length && bc < bigPix[0].length)
+          bigPix[br][bc].setColor(col);
+      }
+
+    big.setTitle("Sticker Added");
+    big.explore();
   }
 }
+
+
+//ChatGPT - Add JOptionPane GUI. (2025). ChatGPT. https://chatgpt.com/share/6939ef5a-e710-8002-8925-005ae010afdd
